@@ -22,21 +22,29 @@ spec:
           imagePullPolicy: {{ .Values.ui.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.ui.service.targetPort }}
-          envFrom:
-            - configMapRef:
-                name: {{ include "mcp-deployment.fullname" . }}-config
-          # Add volume mounts if serving static files
-          volumeMounts:
-            - name: ui-assets
-              mountPath: /usr/share/nginx/html
+          env:
+            - name: MCP_HOST
+              value: {{ .Values.config.mcpHost | quote }}
+            - name: MCP_PORT
+              value: {{ .Values.config.mcpPort | quote }}
+            - name: STREAMLIT_SERVER_PORT
+              value: {{ .Values.ui.service.targetPort | quote }}
           resources:
             requests:
               cpu: 100m
-              memory: 128Mi
+              memory: 256Mi  # Increased for Streamlit
             limits:
-              cpu: 500m
-              memory: 512Mi
-      volumes:
-        - name: ui-assets
-          configMap:
-            name: {{ include "mcp-deployment.fullname" . }}-ui-files
+              cpu: 1000m
+              memory: 1Gi
+          livenessProbe:
+            httpGet:
+              path: /_stcore/health
+              port: {{ .Values.ui.service.targetPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /_stcore/health
+              port: {{ .Values.ui.service.targetPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
