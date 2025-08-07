@@ -1,9 +1,9 @@
-# Host configuration - DISABLED until you have actual image
+# Host configuration - TEMPORARILY DISABLED
 host:
-  enabled: false  # Change to true after building image
+  enabled: false  # Enable after building image
   replicaCount: 1
   image:
-    repository: nginx  # Temporary placeholder
+    repository: nginx  # Temporary public image
     tag: alpine
     pullPolicy: IfNotPresent
   service:
@@ -11,12 +11,12 @@ host:
     port: 8080
     targetPort: 8080
 
-# Client configuration - DISABLED until you have actual image
+# Client configuration - TEMPORARILY DISABLED
 client:
-  enabled: false  # Change to true after building image
+  enabled: false  # Enable after building image
   replicaCount: 1
   image:
-    repository: nginx  # Temporary placeholder
+    repository: nginx  # Temporary public image
     tag: alpine
     pullPolicy: IfNotPresent
   service:
@@ -29,33 +29,40 @@ ui:
   enabled: true
   replicaCount: 1
   image:
-    repository: luke1425/streamlit-test  # Public test image
+    repository: luke1425/streamlit-test  # Verified public image
     tag: latest
-    pullPolicy: Always  # Changed to Always for development
+    pullPolicy: Always
   service:
     type: LoadBalancer
     port: 80
     targetPort: 80
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: "nlb"  # If on AWS
 
-# Ingress configuration - DISABLED until UI works
+# Ingress configuration - DISABLED until ready
 ingress:
-  enabled: false  # Enable after UI works
+  enabled: false  # Enable after other components work
   className: nginx
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-  hosts:
-    - host: mcp.yourdomain.com
-      paths:
-        - path: /
-          pathType: Prefix
+  annotations: {}
+  hosts: []
   tls: []
 
 # Configuration
 config:
-  mcpHost: "future-host"  # Placeholder
+  mcpHost: "future-host-address"
   mcpPort: "8080"
   uiTitle: "MCP Dashboard"
 
-# Add image pull secret if using private registry
+# Resource limits
+resources:
+  ui:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "1000m"
+      memory: "512Mi"
+
+# Add if using private registry
 imagePullSecrets: []
-# - name: regcred  # Uncomment after creating secret
+# - name: regcred
