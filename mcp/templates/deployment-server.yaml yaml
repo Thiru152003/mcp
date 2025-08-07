@@ -1,0 +1,41 @@
+{{- range $server, $config := .Values.servers }}
+{{- if $config.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mcp-deployment.fullname" $ }}-server-{{ $server }}
+  labels:
+    {{- include "mcp-deployment.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: server
+    app.kubernetes.io/server-type: {{ $server }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "mcp-deployment.selectorLabels" $ | nindent 6 }}
+      app.kubernetes.io/component: server
+      app.kubernetes.io/server-type: {{ $server }}
+  template:
+    metadata:
+      labels:
+        {{- include "mcp-deployment.selectorLabels" $ | nindent 8 }}
+        app.kubernetes.io/component: server
+        app.kubernetes.io/server-type: {{ $server }}
+    spec:
+      containers:
+        - name: mcp-server-{{ $server }}
+          image: {{ $config.image }}
+          ports:
+            - containerPort: {{ $config.port }}
+          env:
+            - name: SERVER_TYPE
+              value: {{ $server | quote }}
+            - name: MCP_PROTOCOL_VERSION
+              value: {{ $.Values.config.protocolVersion | quote }}
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
