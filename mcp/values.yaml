@@ -1,68 +1,66 @@
-# Host configuration - TEMPORARILY DISABLED
+# MCP Host Configuration
 host:
-  enabled: false  # Enable after building image
+  enabled: true
   replicaCount: 1
   image:
-    repository: nginx  # Temporary public image
-    tag: alpine
+    repository: ghcr.io/yourorg/mcp-host
+    tag: v1.0.0
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
     port: 8080
     targetPort: 8080
 
-# Client configuration - TEMPORARILY DISABLED
-client:
-  enabled: false  # Enable after building image
-  replicaCount: 1
-  image:
-    repository: nginx  # Temporary public image
-    tag: alpine
-    pullPolicy: IfNotPresent
-  service:
-    type: ClusterIP
+# MCP Servers Configuration
+servers:
+  sentry:
+    enabled: true
+    image: ghcr.io/yourorg/mcp-server-sentry:v1.0.0
     port: 8081
-    targetPort: 8081
+  filesystem:
+    enabled: true
+    image: ghcr.io/yourorg/mcp-server-filesystem:v1.0.0
+    port: 8082
+  database:
+    enabled: true
+    image: ghcr.io/yourorg/mcp-server-database:v1.0.0
+    port: 8083
 
-# UI configuration - WORKING VERSION
+# Streamlit UI Configuration
 ui:
   enabled: true
   replicaCount: 1
   image:
-    repository: luke1425/streamlit-test  # Verified public image
-    tag: latest
-    pullPolicy: Always
+    repository: ghcr.io/yourorg/mcp-streamlit-ui
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
   service:
     type: LoadBalancer
     port: 80
-    targetPort: 80
-    annotations:
-      service.beta.kubernetes.io/aws-load-balancer-type: "nlb"  # If on AWS
+    targetPort: 8501
+  resources:
+    limits:
+      cpu: 1
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 256Mi
 
-# Ingress configuration - DISABLED until ready
+# Ingress Configuration
 ingress:
-  enabled: false  # Enable after other components work
+  enabled: true
   className: nginx
-  annotations: {}
-  hosts: []
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: mcp.yourdomain.com
+      paths:
+        - path: /
+          pathType: Prefix
   tls: []
 
-# Configuration
+# MCP Protocol Configuration
 config:
-  mcpHost: "future-host-address"
-  mcpPort: "8080"
-  uiTitle: "MCP Dashboard"
-
-# Resource limits
-resources:
-  ui:
-    requests:
-      cpu: "100m"
-      memory: "256Mi"
-    limits:
-      cpu: "1000m"
-      memory: "512Mi"
-
-# Add if using private registry
-imagePullSecrets: []
-# - name: regcred
+  protocolVersion: "1.0"
+  transport: "http-sse"  # or "stdio" for local development
+  timeout: "30s"
