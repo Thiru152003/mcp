@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mcp-deployment.fullname" . }}-host
+  labels:
+    {{- include "mcp-deployment.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.host.service.type }}
+  ports:
+    - port: {{ .Values.host.service.port }}
+      targetPort: {{ .Values.host.service.targetPort }}
+      protocol: TCP
+  selector:
+    {{- include "mcp-deployment.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: host

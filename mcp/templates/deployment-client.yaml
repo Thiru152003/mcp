@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mcp-deployment.fullname" . }}-client
+  labels:
+    {{- include "mcp-deployment.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.client.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "mcp-deployment.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: client
+  template:
+    metadata:
+      labels:
+        {{- include "mcp-deployment.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: client
+    spec:
+      containers:
+        - name: mcp-client
+          image: "{{ .Values.client.image.repository }}:{{ .Values.client.image.tag }}"
+          imagePullPolicy: {{ .Values.client.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.client.service.targetPort }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "mcp-deployment.fullname" . }}-config
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
