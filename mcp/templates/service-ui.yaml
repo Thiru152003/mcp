@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "mcp-deployment.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.ui.service.type }}  # This should be "LoadBalancer"
+  type: {{ .Values.ui.service.type }}
   ports:
     - port: {{ .Values.ui.service.port }}
       targetPort: {{ .Values.ui.service.targetPort }}
