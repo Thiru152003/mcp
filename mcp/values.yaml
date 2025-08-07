@@ -3,8 +3,8 @@ host:
   enabled: true
   replicaCount: 1
   image:
-    repository: nginx  # Temporary public image
-    tag: alpine
+    repository: yourregistry/mcp-host
+    tag: latest
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
@@ -16,8 +16,8 @@ client:
   enabled: true
   replicaCount: 1
   image:
-    repository: nginx  # Temporary public image
-    tag: alpine
+    repository: yourregistry/mcp-client
+    tag: latest
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
@@ -29,17 +29,26 @@ ui:
   enabled: true
   replicaCount: 1
   image:
-    repository: nginx
+    repository: nginx  # Or your custom UI image
     tag: alpine
     pullPolicy: IfNotPresent
   service:
-    type: LoadBalancer
+    type: LoadBalancer  # This is critical
     port: 80
     targetPort: 80
 
-# Disabled ingress for now
+# Ingress configuration
 ingress:
-  enabled: false
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: mcp.yourdomain.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
 
 # Configuration
 config:
