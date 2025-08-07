@@ -22,13 +22,15 @@ spec:
           imagePullPolicy: {{ .Values.host.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.host.service.targetPort }}
-          envFrom:
-            - configMapRef:
-                name: {{ include "mcp-deployment.fullname" . }}-config
+          env:
+            - name: MCP_PROTOCOL_VERSION
+              value: {{ .Values.config.protocolVersion | quote }}
+            - name: MCP_TRANSPORT
+              value: {{ .Values.config.transport | quote }}
           resources:
             requests:
               cpu: 100m
-              memory: 128Mi
+              memory: 256Mi
             limits:
               cpu: 500m
               memory: 512Mi
