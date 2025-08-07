@@ -1,45 +1,45 @@
-# Host configuration
+# Host configuration - DISABLED until you have actual image
 host:
-  enabled: true
+  enabled: false  # Change to true after building image
   replicaCount: 1
   image:
-    repository: yourregistry/mcp-host
-    tag: latest
+    repository: nginx  # Temporary placeholder
+    tag: alpine
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
     port: 8080
     targetPort: 8080
 
-# Client configuration
+# Client configuration - DISABLED until you have actual image
 client:
-  enabled: true
+  enabled: false  # Change to true after building image
   replicaCount: 1
   image:
-    repository: yourregistry/mcp-client
-    tag: latest
+    repository: nginx  # Temporary placeholder
+    tag: alpine
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
     port: 8081
     targetPort: 8081
 
-# UI configuration
+# UI configuration - WORKING VERSION
 ui:
   enabled: true
   replicaCount: 1
   image:
-    repository: yourregistry/mcp-streamlit-ui  # You'll build this
+    repository: luke1425/streamlit-test  # Public test image
     tag: latest
-    pullPolicy: IfNotPresent
+    pullPolicy: Always  # Changed to Always for development
   service:
     type: LoadBalancer
     port: 80
     targetPort: 80
 
-# Ingress configuration
+# Ingress configuration - DISABLED until UI works
 ingress:
-  enabled: true
+  enabled: false  # Enable after UI works
   className: nginx
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
@@ -52,6 +52,10 @@ ingress:
 
 # Configuration
 config:
-  mcpHost: "mcp-host"
+  mcpHost: "future-host"  # Placeholder
   mcpPort: "8080"
   uiTitle: "MCP Dashboard"
+
+# Add image pull secret if using private registry
+imagePullSecrets: []
+# - name: regcred  # Uncomment after creating secret
