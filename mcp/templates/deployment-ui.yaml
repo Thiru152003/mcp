@@ -27,24 +27,16 @@ spec:
               value: {{ .Values.config.mcpHost | quote }}
             - name: MCP_PORT
               value: {{ .Values.config.mcpPort | quote }}
-            - name: STREAMLIT_SERVER_PORT
-              value: {{ .Values.ui.service.targetPort | quote }}
           resources:
             requests:
               cpu: 100m
-              memory: 256Mi  # Increased for Streamlit
+              memory: 256Mi
             limits:
               cpu: 1000m
-              memory: 1Gi
+              memory: 512Mi
           livenessProbe:
             httpGet:
               path: /_stcore/health
               port: {{ .Values.ui.service.targetPort }}
-            initialDelaySeconds: 10
-            periodSeconds: 5
-          readinessProbe:
-            httpGet:
-              path: /_stcore/health
-              port: {{ .Values.ui.service.targetPort }}
-            initialDelaySeconds: 5
-            periodSeconds: 5
+            initialDelaySeconds: 20
+            periodSeconds: 10
