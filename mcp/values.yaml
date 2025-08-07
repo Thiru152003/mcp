@@ -29,11 +29,11 @@ ui:
   enabled: true
   replicaCount: 1
   image:
-    repository: nginx  # Or your custom UI image
-    tag: alpine
+    repository: yourregistry/mcp-streamlit-ui  # You'll build this
+    tag: latest
     pullPolicy: IfNotPresent
   service:
-    type: LoadBalancer  # This is critical
+    type: LoadBalancer
     port: 80
     targetPort: 80
 
