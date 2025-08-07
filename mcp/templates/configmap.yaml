@@ -5,6 +5,22 @@ metadata:
   labels:
     {{- include "mcp-deployment.labels" . | nindent 4 }}
 data:
-  MCP_HOST: {{ .Values.config.mcpHost | quote }}
-  MCP_PORT: {{ .Values.config.mcpPort | quote }}
-  UI_TITLE: {{ .Values.config.uiTitle | quote }}
+  config.json: |
+    {
+      "protocol": {
+        "version": "{{ .Values.config.protocolVersion }}",
+        "transport": "{{ .Values.config.transport }}",
+        "timeout": "{{ .Values.config.timeout }}"
+      },
+      "servers": {
+        "sentry": {
+          "url": "http://{{ include "mcp-deployment.fullname" . }}-server-sentry:{{ .Values.servers.sentry.port }}"
+        },
+        "filesystem": {
+          "url": "http://{{ include "mcp-deployment.fullname" . }}-server-filesystem:{{ .Values.servers.filesystem.port }}"
+        },
+        "database": {
+          "url": "http://{{ include "mcp-deployment.fullname" . }}-server-database:{{ .Values.servers.database.port }}"
+        }
+      }
+    }
