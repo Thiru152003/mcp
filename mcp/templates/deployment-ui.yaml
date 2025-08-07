@@ -23,20 +23,25 @@ spec:
           ports:
             - containerPort: {{ .Values.ui.service.targetPort }}
           env:
-            - name: MCP_HOST
-              value: {{ .Values.config.mcpHost | quote }}
-            - name: MCP_PORT
-              value: {{ .Values.config.mcpPort | quote }}
+            - name: MCP_HOST_URL
+              value: "http://{{ include "mcp-deployment.fullname" . }}-host:{{ .Values.host.service.port }}"
+            - name: MCP_SENTRY_URL
+              value: "http://{{ include "mcp-deployment.fullname" . }}-server-sentry:{{ .Values.servers.sentry.port }}"
+            - name: MCP_FILESYSTEM_URL
+              value: "http://{{ include "mcp-deployment.fullname" . }}-server-filesystem:{{ .Values.servers.filesystem.port }}"
+            - name: MCP_DATABASE_URL
+              value: "http://{{ include "mcp-deployment.fullname" . }}-server-database:{{ .Values.servers.database.port }}"
           resources:
-            requests:
-              cpu: 100m
-              memory: 256Mi
-            limits:
-              cpu: 1000m
-              memory: 512Mi
+            {{- toYaml .Values.ui.resources | nindent 12 }}
           livenessProbe:
             httpGet:
               path: /_stcore/health
               port: {{ .Values.ui.service.targetPort }}
-            initialDelaySeconds: 20
+            initialDelaySeconds: 30
             periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.ui.service.targetPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
